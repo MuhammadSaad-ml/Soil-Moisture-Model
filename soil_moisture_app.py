@@ -131,17 +131,8 @@ nn_rmse = mean_squared_error(y_test, nn_pred, squared=False)
 
 # Display predictions
 st.subheader("📊 Soil Moisture Predictions")
-try:
-    dt_rmse = mean_squared_error(y_test, dt_pred, squared=False)
-except TypeError:
-    # fallback for older sklearn versions
-    dt_rmse = mean_squared_error(y_test, dt_pred) ** 0.5
-
-try:
-    nn_rmse = mean_squared_error(y_test, nn_pred, squared=False)
-except TypeError:
-    nn_rmse = mean_squared_error(y_test, nn_pred) ** 0.5
-
+st.metric("Decision Tree RMSE", f"{dt_rmse:.2f}")
+st.metric("Neural Network RMSE", f"{nn_rmse:.2f}")
 
 # Optional: Predict soil moisture for current filter values
 latest_features = X.tail(1)
@@ -225,7 +216,6 @@ Lower RMSE → More accurate predictions.
 - 30–60% → Moisture is in the optimal range.  
 - Above 60% → Soil is too wet; reduce irrigation.
 """)
-
 
 
 
