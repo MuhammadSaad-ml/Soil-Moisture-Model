@@ -1,6 +1,10 @@
-streamlit
-pandas
-plotly
-scikit-learn
-numpy
-python
+# === Core Packages ===
+streamlit>=1.39.0
+pandas>=2.2.2
+plotly>=5.24.1
+scikit-learn>=1.5.2
+numpy>=1.26.4
+python-dotenv>=1.0.1
+
+# Optional: useful for future expansion or model saving
+joblib>=1.4.2
