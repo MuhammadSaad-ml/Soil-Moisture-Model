@@ -67,8 +67,15 @@ st.plotly_chart(fig, width="stretch")
 # ===============================
 # 5. Insights
 # ===============================
-avg_moisture = filtered_df["soil_moisture_%"].mean()
-st.metric("Average Soil Moisture", f"{avg_moisture:.2f}%")
+# Make average depend on selected X-axis feature bins
+bins = 3
+avg_by_feature = (
+    filtered_df.groupby(pd.cut(filtered_df[feature_x], bins=bins))["soil_moisture_%"].mean().mean()
+)
+
+# Display metric with feature name to force re-render
+st.metric(f"Average Soil Moisture (vs {feature_x})", f"{avg_by_feature:.2f}%")
+
 
 st.markdown("""
 **Legend:**
@@ -183,4 +190,5 @@ Lower RMSE → More accurate predictions.
 - 30–60% → Moisture is in the optimal range.  
 - Above 60% → Soil is too wet; reduce irrigation.
 """)
+
 
