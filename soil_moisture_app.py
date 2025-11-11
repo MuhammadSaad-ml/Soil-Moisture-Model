@@ -81,7 +81,9 @@ st.markdown("""
 # ===============================
 # 6. Predictive Model for Soil Moisture
 # ===============================
-X = filtered_df[["temperature_C", "humidity_%", "rainfall_mm", "soil_pH"]].copy()
+# Only use the selected feature for prediction
+X = filtered_df[[feature_x]].copy()
+
 
 # Encode categorical features
 le_crop = LabelEncoder()
@@ -181,3 +183,4 @@ Lower RMSE → More accurate predictions.
 - 30–60% → Moisture is in the optimal range.  
 - Above 60% → Soil is too wet; reduce irrigation.
 """)
+
