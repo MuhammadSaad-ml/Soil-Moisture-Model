@@ -126,6 +126,8 @@ nn_rmse = np.sqrt(mean_squared_error(y_test, nn_pred))  # fixed
 # 7. Display Results
 # ===============================
 st.subheader("📊 Soil Moisture Predictions")
+print(y_test)
+print(dt_pred)
 st.metric("Decision Tree RMSE", f"{dt_rmse:.2f}")
 st.metric("Neural Network RMSE", f"{nn_rmse:.2f}")
 
@@ -192,6 +194,7 @@ Lower RMSE → More accurate predictions.
 - 30–60% → Moisture is in the optimal range.  
 - Above 60% → Soil is too wet; reduce irrigation.
 """)
+
 
 
 
