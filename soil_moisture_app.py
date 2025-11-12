@@ -112,7 +112,7 @@ X_test_scaled = scaler.transform(X_test)
 dt_model = DecisionTreeRegressor(max_depth=5, random_state=42)
 dt_model.fit(X_train, y_train)
 dt_pred = dt_model.predict(X_test)
-dt_pred 1= dt_model.predict(Y_test)
+dt_pred = dt_model.predict(Y_test)
 dt_rmse = np.sqrt(mean_squared_error(y_test, dt_pred))  # fixed for all sklearn versions
 
 # Neural Network
@@ -191,6 +191,7 @@ Lower RMSE → More accurate predictions.
 - 30–60% → Moisture is in the optimal range.  
 - Above 60% → Soil is too wet; reduce irrigation.
 """)
+
 
 
 
