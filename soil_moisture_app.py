@@ -49,17 +49,53 @@ soil_col = [col for col in df.columns if "moisture" in col.lower()][0]
 
 filtered_df.loc[:, "Soil_Moisture_Level"] = pd.cut(filtered_df[soil_col], bins=bins, labels=labels)
 
- ===============================
-# 4. Model Comparison: Actual vs Predicted
+# ===============================
+# 4. Model Preparation
+# ===============================
+X = filtered_df[[feature_x]].copy()
+
+# Encode categorical features
+le_crop = LabelEncoder()
+le_fert = LabelEncoder()
+X["crop_type_encoded"] = le_crop.fit_transform(filtered_df["crop_type"])
+X["fertilizer_type_encoded"] = le_fert.fit_transform(filtered_df["fertilizer_type"])
+
+y = filtered_df["soil_moisture_%"]
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Scale features for Neural Network
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# ===============================
+# 5. Train Models
+# ===============================
+# 🌳 Decision Tree Model
+dt_model = DecisionTreeRegressor(max_depth=5, random_state=42)
+dt_model.fit(X_train, y_train)
+dt_pred = dt_model.predict(X_test)
+dt_rmse = np.sqrt(mean_squared_error(y_test, dt_pred))
+
+# 🤖 Neural Network Model
+nn_model = MLPRegressor(hidden_layer_sizes=(50, 50), max_iter=1000, random_state=42)
+nn_model.fit(X_train_scaled, y_train)
+nn_pred = nn_model.predict(X_test_scaled)
+nn_rmse = np.sqrt(mean_squared_error(y_test, nn_pred))
+
+# ===============================
+# 6. Actual vs Predicted Comparison
 # ===============================
 st.subheader("📉 Model Accuracy Comparison: Actual vs Predicted Soil Moisture")
 
-# --- Decision Tree ---
 col1, col2 = st.columns(2)
+
+# --- Decision Tree ---
 with col1:
     st.markdown("### 🌳 Decision Tree Results")
 
-    # Create comparison DataFrame
     dt_compare_df = pd.DataFrame({
         "Actual Soil Moisture (%)": y_test.values,
         "Predicted Soil Moisture (%)": dt_pred
@@ -68,7 +104,6 @@ with col1:
 
     st.dataframe(dt_compare_df, use_container_width=True)
 
-    # Plot Actual vs Predicted for Decision Tree
     fig_dt = px.scatter(
         dt_compare_df,
         x="Actual Soil Moisture (%)",
@@ -76,8 +111,13 @@ with col1:
         title="Decision Tree: Actual vs Predicted Soil Moisture",
         color="Error (%)",
         color_continuous_scale="Viridis",
-        trendline="ols",
-        labels={"Actual Soil Moisture (%)": "Actual", "Predicted Soil Moisture (%)": "Predicted"}
+        trendline="ols"
+    )
+    fig_dt.add_shape(
+        type="line",
+        x0=y_test.min(), y0=y_test.min(),
+        x1=y_test.max(), y1=y_test.max(),
+        line=dict(color="red", dash="dash")
     )
     fig_dt.update_layout(height=400)
     st.plotly_chart(fig_dt, use_container_width=True)
@@ -86,7 +126,6 @@ with col1:
 with col2:
     st.markdown("### 🤖 Neural Network Results")
 
-    # Create comparison DataFrame for NN
     nn_compare_df = pd.DataFrame({
         "Actual Soil Moisture (%)": y_test.values,
         "Predicted Soil Moisture (%)": nn_pred
@@ -95,7 +134,6 @@ with col2:
 
     st.dataframe(nn_compare_df, use_container_width=True)
 
-    # Plot Actual vs Predicted for Neural Network
     fig_nn = px.scatter(
         nn_compare_df,
         x="Actual Soil Moisture (%)",
@@ -103,14 +141,21 @@ with col2:
         title="Neural Network: Actual vs Predicted Soil Moisture",
         color="Error (%)",
         color_continuous_scale="Viridis",
-        trendline="ols",
-        labels={"Actual Soil Moisture (%)": "Actual", "Predicted Soil Moisture (%)": "Predicted"}
+        trendline="ols"
     )
+    
+    # fig_nn.add_shape(
+    #     type="line",
+    #     x0=y_test.min(), y0=y_test.min(),
+    #     x1=y_test.max(), y1=y_test.max(),
+    #     line=dict(color="red", dash="dash")
+
+    # )
     fig_nn.update_layout(height=400)
     st.plotly_chart(fig_nn, use_container_width=True)
 
 # ===============================
-# 5. RMSE and Performance Summary
+# 7. Model Performance Summary
 # ===============================
 st.markdown("---")
 st.subheader("📊 Model Performance Summary")
@@ -126,126 +171,21 @@ if nn_rmse < dt_rmse:
 else:
     st.warning("⚠️ The Decision Tree performed slightly better in this case.")
 
-# # ===============================
-# # 5. Insights
-# # ===============================
-# # Make average depend on selected X-axis feature bins
-# bins = 3
-# avg_by_feature = (
-#     filtered_df.groupby(pd.cut(filtered_df[feature_x], bins=bins))["soil_moisture_%"].mean().mean()
-# )
-
-# # Display metric with feature name to force re-render
-# st.metric(f"Average Soil Moisture (vs {feature_x})", f"{avg_by_feature:.2f}%")
-
-
-# st.markdown("""
-# **Legend:**
-# - 🌵 Very Dry (<20%)  
-# - 🌾 Moderate (40–60%)  
-# - 💧 Moist (60–80%)  
-# - 🌊 Wet (>80%)
-# """)
-
 # ===============================
-# 6. Predictive Model for Soil Moisture
+# 8. Latest Predictions and Interpretation
 # ===============================
-# Only use the selected feature for prediction
-X = filtered_df[[feature_x]].copy()
-
-
-# Encode categorical features
-le_crop = LabelEncoder()
-le_fert = LabelEncoder()
-X["crop_type_encoded"] = le_crop.fit_transform(filtered_df["crop_type"])
-X["fertilizer_type_encoded"] = le_fert.fit_transform(filtered_df["fertilizer_type"])
-
-y = filtered_df["soil_moisture_%"]
-
-# Train-test split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-# Scale features for NN
-scaler = StandardScaler()
-X_train_scaled = scaler.fit_transform(X_train)
-X_test_scaled = scaler.transform(X_test)
-
-# ===============================
-# 🌳 Decision Tree Model
-# ===============================
-dt_model = DecisionTreeRegressor(max_depth=5, random_state=42)
-dt_model.fit(X_train, y_train)
-
-# Make predictions
-dt_pred = dt_model.predict(X_test)
-
-# Create comparison DataFrame (Actual vs Predicted)
-dt_compare_df = pd.DataFrame({
-    "Actual Soil Moisture (%)": y_test.values,
-    "Predicted Soil Moisture (%)": dt_pred
-}).reset_index(drop=True)
-
-# Add error difference column
-dt_compare_df["Error (%)"] = abs(dt_compare_df["Actual Soil Moisture (%)"] - dt_compare_df["Predicted Soil Moisture (%)"])
-
-# Display the table in Streamlit
-st.subheader("🌳 Decision Tree Predictions vs Actual")
-st.dataframe(dt_compare_df)
-
-# Calculate RMSE
-dt_rmse = np.sqrt(mean_squared_error(y_test, dt_pred))
-
-
-# Neural Network
-nn_model = MLPRegressor(hidden_layer_sizes=(50, 50), max_iter=1000, random_state=42)
-nn_model.fit(X_train_scaled, y_train)
-nn_pred = nn_model.predict(X_test_scaled)
-nn_rmse = np.sqrt(mean_squared_error(y_test, nn_pred))  # fixed
-
-# ===============================
-# 7. Display Results
-# ===============================
-st.subheader("📊 Soil Moisture Predictions")
-st.metric("Decision Tree RMSE", f"{dt_rmse:.2f}")
-st.metric("Neural Network RMSE", f"{nn_rmse:.2f}")
-
 latest_features = X.tail(1)
 pred_dt_latest = dt_model.predict(latest_features)[0]
 pred_nn_latest = nn_model.predict(scaler.transform(latest_features))[0]
 
-st.write(f"Predicted Soil Moisture (Decision Tree): {pred_dt_latest:.2f}%")
-st.write(f"Predicted Soil Moisture (Neural Network): {pred_nn_latest:.2f}%")
-
-# ===============================
-# 8. Understanding & Indicators
-# ===============================
 st.markdown("---")
-st.markdown("<h3 style='color:#2DBBCC;'>📘 Understanding the Results</h3>", unsafe_allow_html=True)
+st.markdown("### 💧 Latest Soil Moisture Predictions")
 
-col1, col2 = st.columns(2)
-with col1:
-    st.metric("🌳 Decision Tree RMSE", f"{dt_rmse:.2f}%", "Lower = Better")
-with col2:
-    st.metric("🤖 Neural Network RMSE", f"{nn_rmse:.2f}%", "Lower = Better")
-
-if nn_rmse < dt_rmse:
-    st.success("✅ The Neural Network provides more accurate soil moisture predictions.")
-else:
-    st.warning("⚠️ The Decision Tree performed slightly better in this case.")
-
-st.markdown("### 💧 Predicted Soil Moisture Levels")
-
-col3, col4 = st.columns(2)
-with col3:
-    st.markdown(f"""
-    **🌳 Decision Tree Prediction:**  
-    <h2 style='color:#2DBBCC;'>{pred_dt_latest:.2f}%</h2>
-    """, unsafe_allow_html=True)
-with col4:
-    st.markdown(f"""
-    **🤖 Neural Network Prediction:**  
-    <h2 style='color:#2DBBCC;'>{pred_nn_latest:.2f}%</h2>
-    """, unsafe_allow_html=True)
+col5, col6 = st.columns(2)
+with col5:
+    st.markdown(f"**🌳 Decision Tree Prediction:** <h2 style='color:#2DBBCC;'>{pred_dt_latest:.2f}%</h2>", unsafe_allow_html=True)
+with col6:
+    st.markdown(f"**🤖 Neural Network Prediction:** <h2 style='color:#2DBBCC;'>{pred_nn_latest:.2f}%</h2>", unsafe_allow_html=True)
 
 predicted_value = (pred_nn_latest + pred_dt_latest) / 2
 if predicted_value < 30:
@@ -272,13 +212,3 @@ Lower RMSE → More accurate predictions.
 - 30–60% → Moisture is in the optimal range.  
 - Above 60% → Soil is too wet; reduce irrigation.
 """)
-
-
-
-
-
-
-
-
-
-
