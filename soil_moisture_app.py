@@ -49,41 +49,103 @@ soil_col = [col for col in df.columns if "moisture" in col.lower()][0]
 
 filtered_df.loc[:, "Soil_Moisture_Level"] = pd.cut(filtered_df[soil_col], bins=bins, labels=labels)
 
+ ===============================
+# 4. Model Comparison: Actual vs Predicted
 # ===============================
-# 4. Visualization
-# ===============================
-fig = px.scatter(
-    filtered_df,
-    x=feature_x,
-    y="soil_moisture_%",
-    color="Soil_Moisture_Level",
-    size="yield_kg_per_hectare",
-    hover_data=["crop_type", "fertilizer_type"],
-    title=f"Soil Moisture vs {feature_x} for {crop} ({fertilizer})"
-)
-fig.update_layout(legend_title_text="Soil Moisture Level")
-st.plotly_chart(fig, width="stretch")
+st.subheader("📉 Model Accuracy Comparison: Actual vs Predicted Soil Moisture")
+
+# --- Decision Tree ---
+col1, col2 = st.columns(2)
+with col1:
+    st.markdown("### 🌳 Decision Tree Results")
+
+    # Create comparison DataFrame
+    dt_compare_df = pd.DataFrame({
+        "Actual Soil Moisture (%)": y_test.values,
+        "Predicted Soil Moisture (%)": dt_pred
+    }).reset_index(drop=True)
+    dt_compare_df["Error (%)"] = abs(dt_compare_df["Actual Soil Moisture (%)"] - dt_compare_df["Predicted Soil Moisture (%)"])
+
+    st.dataframe(dt_compare_df, use_container_width=True)
+
+    # Plot Actual vs Predicted for Decision Tree
+    fig_dt = px.scatter(
+        dt_compare_df,
+        x="Actual Soil Moisture (%)",
+        y="Predicted Soil Moisture (%)",
+        title="Decision Tree: Actual vs Predicted Soil Moisture",
+        color="Error (%)",
+        color_continuous_scale="Viridis",
+        trendline="ols",
+        labels={"Actual Soil Moisture (%)": "Actual", "Predicted Soil Moisture (%)": "Predicted"}
+    )
+    fig_dt.update_layout(height=400)
+    st.plotly_chart(fig_dt, use_container_width=True)
+
+# --- Neural Network ---
+with col2:
+    st.markdown("### 🤖 Neural Network Results")
+
+    # Create comparison DataFrame for NN
+    nn_compare_df = pd.DataFrame({
+        "Actual Soil Moisture (%)": y_test.values,
+        "Predicted Soil Moisture (%)": nn_pred
+    }).reset_index(drop=True)
+    nn_compare_df["Error (%)"] = abs(nn_compare_df["Actual Soil Moisture (%)"] - nn_compare_df["Predicted Soil Moisture (%)"])
+
+    st.dataframe(nn_compare_df, use_container_width=True)
+
+    # Plot Actual vs Predicted for Neural Network
+    fig_nn = px.scatter(
+        nn_compare_df,
+        x="Actual Soil Moisture (%)",
+        y="Predicted Soil Moisture (%)",
+        title="Neural Network: Actual vs Predicted Soil Moisture",
+        color="Error (%)",
+        color_continuous_scale="Viridis",
+        trendline="ols",
+        labels={"Actual Soil Moisture (%)": "Actual", "Predicted Soil Moisture (%)": "Predicted"}
+    )
+    fig_nn.update_layout(height=400)
+    st.plotly_chart(fig_nn, use_container_width=True)
 
 # ===============================
-# 5. Insights
+# 5. RMSE and Performance Summary
 # ===============================
-# Make average depend on selected X-axis feature bins
-bins = 3
-avg_by_feature = (
-    filtered_df.groupby(pd.cut(filtered_df[feature_x], bins=bins))["soil_moisture_%"].mean().mean()
-)
+st.markdown("---")
+st.subheader("📊 Model Performance Summary")
 
-# Display metric with feature name to force re-render
-st.metric(f"Average Soil Moisture (vs {feature_x})", f"{avg_by_feature:.2f}%")
+col3, col4 = st.columns(2)
+with col3:
+    st.metric("🌳 Decision Tree RMSE", f"{dt_rmse:.2f}%")
+with col4:
+    st.metric("🤖 Neural Network RMSE", f"{nn_rmse:.2f}%")
+
+if nn_rmse < dt_rmse:
+    st.success("✅ The Neural Network provides more accurate soil moisture predictions.")
+else:
+    st.warning("⚠️ The Decision Tree performed slightly better in this case.")
+
+# # ===============================
+# # 5. Insights
+# # ===============================
+# # Make average depend on selected X-axis feature bins
+# bins = 3
+# avg_by_feature = (
+#     filtered_df.groupby(pd.cut(filtered_df[feature_x], bins=bins))["soil_moisture_%"].mean().mean()
+# )
+
+# # Display metric with feature name to force re-render
+# st.metric(f"Average Soil Moisture (vs {feature_x})", f"{avg_by_feature:.2f}%")
 
 
-st.markdown("""
-**Legend:**
-- 🌵 Very Dry (<20%)  
-- 🌾 Moderate (40–60%)  
-- 💧 Moist (60–80%)  
-- 🌊 Wet (>80%)
-""")
+# st.markdown("""
+# **Legend:**
+# - 🌵 Very Dry (<20%)  
+# - 🌾 Moderate (40–60%)  
+# - 💧 Moist (60–80%)  
+# - 🌊 Wet (>80%)
+# """)
 
 # ===============================
 # 6. Predictive Model for Soil Moisture
@@ -210,6 +272,7 @@ Lower RMSE → More accurate predictions.
 - 30–60% → Moisture is in the optimal range.  
 - Above 60% → Soil is too wet; reduce irrigation.
 """)
+
 
 
 
