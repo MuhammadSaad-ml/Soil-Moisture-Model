@@ -143,13 +143,11 @@ with col2:
         color_continuous_scale="Viridis",
         trendline="ols"
     )
-    
     fig_nn.add_shape(
         type="line",
         x0=y_test.min(), y0=y_test.min(),
         x1=y_test.max(), y1=y_test.max(),
         line=dict(color="red", dash="dash")
-
     )
     fig_nn.update_layout(height=400)
     st.plotly_chart(fig_nn, use_container_width=True)
@@ -212,4 +210,3 @@ Lower RMSE → More accurate predictions.
 - 30–60% → Moisture is in the optimal range.  
 - Above 60% → Soil is too wet; reduce irrigation.
 """)
-
