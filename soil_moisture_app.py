@@ -108,22 +108,31 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
-# Decision Tree
+# ===============================
+# 🌳 Decision Tree Model
+# ===============================
 dt_model = DecisionTreeRegressor(max_depth=5, random_state=42)
 dt_model.fit(X_train, y_train)
+
+# Make predictions
 dt_pred = dt_model.predict(X_test)
 
-# Create comparison DataFrame
+# Create comparison DataFrame (Actual vs Predicted)
 dt_compare_df = pd.DataFrame({
     "Actual Soil Moisture (%)": y_test.values,
     "Predicted Soil Moisture (%)": dt_pred
 }).reset_index(drop=True)
 
+# Add error difference column
+dt_compare_df["Error (%)"] = abs(dt_compare_df["Actual Soil Moisture (%)"] - dt_compare_df["Predicted Soil Moisture (%)"])
+
+# Display the table in Streamlit
 st.subheader("🌳 Decision Tree Predictions vs Actual")
 st.dataframe(dt_compare_df)
 
-# Show RMSE
+# Calculate RMSE
 dt_rmse = np.sqrt(mean_squared_error(y_test, dt_pred))
+
 
 # Neural Network
 nn_model = MLPRegressor(hidden_layer_sizes=(50, 50), max_iter=1000, random_state=42)
@@ -135,8 +144,6 @@ nn_rmse = np.sqrt(mean_squared_error(y_test, nn_pred))  # fixed
 # 7. Display Results
 # ===============================
 st.subheader("📊 Soil Moisture Predictions")
-print(y_test)
-print(dt_pred)
 st.metric("Decision Tree RMSE", f"{dt_rmse:.2f}")
 st.metric("Neural Network RMSE", f"{nn_rmse:.2f}")
 
@@ -203,6 +210,7 @@ Lower RMSE → More accurate predictions.
 - 30–60% → Moisture is in the optimal range.  
 - Above 60% → Soil is too wet; reduce irrigation.
 """)
+
 
 
 
