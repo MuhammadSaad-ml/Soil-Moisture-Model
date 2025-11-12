@@ -112,9 +112,18 @@ X_test_scaled = scaler.transform(X_test)
 dt_model = DecisionTreeRegressor(max_depth=5, random_state=42)
 dt_model.fit(X_train, y_train)
 dt_pred = dt_model.predict(X_test)
-print(y_test)
-print(dt_pred)
-dt_rmse = np.sqrt(mean_squared_error(y_test, dt_pred))  # fixed for all sklearn versions
+
+# Create comparison DataFrame
+dt_compare_df = pd.DataFrame({
+    "Actual Soil Moisture (%)": y_test.values,
+    "Predicted Soil Moisture (%)": dt_pred
+}).reset_index(drop=True)
+
+st.subheader("🌳 Decision Tree Predictions vs Actual")
+st.dataframe(dt_compare_df)
+
+# Show RMSE
+dt_rmse = np.sqrt(mean_squared_error(y_test, dt_pred))
 
 # Neural Network
 nn_model = MLPRegressor(hidden_layer_sizes=(50, 50), max_iter=1000, random_state=42)
@@ -194,6 +203,7 @@ Lower RMSE → More accurate predictions.
 - 30–60% → Moisture is in the optimal range.  
 - Above 60% → Soil is too wet; reduce irrigation.
 """)
+
 
 
 
