@@ -23,7 +23,7 @@ This model allows you to **explore soil moisture** levels depending on temperatu
 # ===============================
 @st.cache_data
 def load_data():
-    return pd.read_csv("Expanded_Soil_Dataset.csv")
+    return pd.read_csv("Expanded_Mixup_LatLong.csv")
 
 df = load_data()
 
@@ -222,5 +222,6 @@ Lower RMSE → More accurate predictions.
 - 30–60% → Moisture is in the optimal range.  
 - Above 60% → Soil is too wet; reduce irrigation.
 """)
+
 
 
