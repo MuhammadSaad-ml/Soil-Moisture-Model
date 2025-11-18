@@ -28,17 +28,28 @@ def load_data():
 df = load_data()
 
 # ===============================
-# 2. Filters
+# 2. Filters (Region added)
 # ===============================
-col1, col2, col3 = st.columns(3)
+col0, col1, col2, col3 = st.columns(4)
+
+with col0:
+    region = st.selectbox("Select Region:", options=df["region"].unique())
+
 with col1:
     crop = st.selectbox("Select Crop Type:", options=df["crop_type"].unique())
+
 with col2:
     fertilizer = st.selectbox("Select Fertilizer:", options=df["fertilizer_type"].unique())
+
 with col3:
     feature_x = st.selectbox("Select X-Axis Feature:", options=["temperature_C", "humidity_%", "rainfall_mm", "soil_pH"])
 
-filtered_df = df[(df["crop_type"] == crop) & (df["fertilizer_type"] == fertilizer)].copy()
+# Apply region filter FIRST, then crop & fertilizer
+filtered_df = df[
+    (df["region"] == region) &
+    (df["crop_type"] == crop) &
+    (df["fertilizer_type"] == fertilizer)
+].copy()
 
 # ===============================
 # 3. Soil Moisture Classification
@@ -57,6 +68,7 @@ X = filtered_df[[feature_x]].copy()
 # Encode categorical features
 le_crop = LabelEncoder()
 le_fert = LabelEncoder()
+
 X["crop_type_encoded"] = le_crop.fit_transform(filtered_df["crop_type"])
 X["fertilizer_type_encoded"] = le_fert.fit_transform(filtered_df["fertilizer_type"])
 
