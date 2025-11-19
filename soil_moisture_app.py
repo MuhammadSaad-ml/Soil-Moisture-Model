@@ -62,32 +62,50 @@ filtered_df = df[
 
 st.subheader("📊 Soil Moisture Relationship Visualization")
 
-if len(filtered_df) > 0:
+# ---- Detect soil moisture column safely ----
+moisture_candidates = [col for col in df.columns if "moisture" in col.lower()]
 
-    fig_visual = px.scatter(
-        filtered_df,
-        x=feature_x,
-        y=soil_col,
-        color="Soil_Moisture_Level",
-        title=f"Soil Moisture vs {feature_x}",
-        labels={
-            feature_x: feature_x.replace("_", " "),
-            soil_col: "Soil Moisture (%)"
-        },
-        color_discrete_map={
-            "Dry": "red",
-            "Optimal": "green",
-            "Wet": "blue"
-        }
-    )
-
-    fig_visual.update_traces(marker=dict(size=10, opacity=0.7))
-    fig_visual.update_layout(height=450)
-
-    st.plotly_chart(fig_visual, use_container_width=True)
-
+if len(moisture_candidates) == 0:
+    st.error("❌ No column found containing the word 'moisture'. Please check your dataset.")
 else:
-    st.warning("No data available for the selected filters.")
+    soil_col = moisture_candidates[0]   # use the first matching column
+
+    # Show detected column
+    st.caption(f"Using soil moisture column: **{soil_col}**")
+
+    if len(filtered_df) > 0:
+
+        # ---- Create scatter visualization ----
+        fig_visual = px.scatter(
+            filtered_df,
+            x=feature_x,
+            y=soil_col,
+            color="Soil_Moisture_Level",
+            title=f"Soil Moisture vs {feature_x}",
+            labels={
+                feature_x: feature_x.replace("_", " ").title(),
+                soil_col: "Soil Moisture (%)"
+            },
+            color_discrete_map={
+                "Dry": "red",
+                "Optimal": "green",
+                "Wet": "blue"
+            }
+        )
+
+        fig_visual.update_traces(marker=dict(size=10, opacity=0.7))
+        fig_visual.update_layout(height=450)
+
+        st.plotly_chart(fig_visual, use_container_width=True)
+
+        # ---- Optional: Show table of values ----
+        st.dataframe(
+            filtered_df[[feature_x, soil_col, "Soil_Moisture_Level"]],
+            use_container_width=True
+        )
+
+    else:
+        st.warning("⚠️ No data available for the selected filters.")
 
 # ===============================
 # 3. Soil Moisture Classification
@@ -266,4 +284,5 @@ RMSE measures how close predictions are to actual soil moisture values.
 - 30–60% → **Optimal**  
 - Above 60% → **Too Wet**
 """)
+
 
