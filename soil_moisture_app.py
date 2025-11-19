@@ -75,7 +75,7 @@ X["fertilizer_type_encoded"] = le_fert.fit_transform(filtered_df["fertilizer_typ
 y = filtered_df["soil_moisture_%"]
 
 # Train-test split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.8, random_state=42)
 
 # Scale features for Neural Network
 scaler = StandardScaler()
@@ -222,6 +222,7 @@ Lower RMSE → More accurate predictions.
 - 30–60% → Moisture is in the optimal range.  
 - Above 60% → Soil is too wet; reduce irrigation.
 """)
+
 
 
 
