@@ -23,7 +23,7 @@ This model predicts **soil moisture** based on temperature, humidity, rainfall, 
 # ===============================
 @st.cache_data
 def load_data():
-    return pd.read_csv("Smart_Farming_Crop_Yield_2024.csv")
+    return pd.read_csv("Expanded_Mixup_latlong.csv")
 
 df = load_data()
 
@@ -232,3 +232,4 @@ RMSE measures how close predictions are to actual soil moisture values.
 - 30–60% → **Optimal**  
 - Above 60% → **Too Wet**
 """)
+
