@@ -207,7 +207,8 @@ nn_latest = nn_model.predict(scaler.transform(latest_features))[0]
 st.markdown("---")
 st.subheader("💧 Latest Soil Moisture Prediction")
 
-col5, col6 = st.columns(2) with col5: st.markdown( f"**🌳 Decision Tree Prediction:** <h2 style='color:#2DBBCC;'>{pred_dt_latest:.2f}%</h2>", unsafe_allow_html=True ) with col6: st.markdown( f"**🤖 Neural Network Prediction:** <h2 style='color:#2DBBCC;'>{pred_nn_latest:.2f}%</h2>", unsafe_allow_html=True )
+col5, col6 = st.columns(2) with col5: st.markdown( f"**🌳 Decision Tree Prediction:** <h2 style='color:#2DBBCC;'>{pred_dt_latest:.2f}%</h2>", unsafe_allow_html=True )
+    with col6: st.markdown( f"**🤖 Neural Network Prediction:** <h2 style='color:#2DBBCC;'>{pred_nn_latest:.2f}%</h2>", unsafe_allow_html=True )
 avg = (dt_latest + nn_latest) / 2
 
 if avg < 30:
