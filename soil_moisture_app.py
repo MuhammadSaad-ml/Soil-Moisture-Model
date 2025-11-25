@@ -264,10 +264,9 @@ else:
 st.progress(int(avg))
 st.markdown(f"<p style='color:{bar_color}; font-size:18px;'>{condition}</p>", unsafe_allow_html=True)
 
-
-st.info("""
 st.markdown("""
-        
+### 🔎 Simple Examples
+
 - **MAE**:  
   If MAE = `4`, the predictions are usually **4 units away** from the correct value.
 
@@ -279,6 +278,5 @@ st.markdown("""
 """)
 
 
-""")
 
 
