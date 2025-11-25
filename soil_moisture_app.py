@@ -183,17 +183,71 @@ with col2:
 # ===============================
 # 7. Model Performance Summary
 # ===============================
+# ===============================
+# 7. Model Performance Summary
+# ===============================
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+
+# Decision Tree Metrics
+dt_mse = mean_squared_error(y_test, dt_pred)
+dt_rmse = np.sqrt(dt_mse)
+dt_mae = mean_absolute_error(y_test, dt_pred)
+
+# Neural Network Metrics
+nn_mse = mean_squared_error(y_test, nn_pred)
+nn_rmse = np.sqrt(nn_mse)
+nn_mae = mean_absolute_error(y_test, nn_pred)
+
 st.markdown("---")
 st.subheader("📊 Model Performance Overview")
 
 col3, col4 = st.columns(2)
-col3.metric("🌳 Decision Tree RMSE", f"{dt_rmse:.2f}%")
-col4.metric("🤖 Neural Network RMSE", f"{nn_rmse:.2f}%")
+
+with col3:
+    st.markdown("### 🌳 Decision Tree")
+    st.metric("RMSE", f"{dt_rmse:.2f}")
+    st.metric("MSE", f"{dt_mse:.2f}")
+    st.metric("MAE", f"{dt_mae:.2f}")
+
+with col4:
+    st.markdown("### 🤖 Neural Network")
+    st.metric("RMSE", f"{nn_rmse:.2f}")
+    st.metric("MSE", f"{nn_mse:.2f}")
+    st.metric("MAE", f"{nn_mae:.2f}")
 
 if nn_rmse < dt_rmse:
-    st.success("✅ Neural Network is more accurate.")
+    st.success("✅ Neural Network has better accuracy based on RMSE.")
 else:
-    st.warning("⚠ Decision Tree performed better.")
+    st.warning("⚠ Decision Tree performed better based on RMSE.")
+
+
+# ===============================
+# 📘 Metric Explanation Table
+# ===============================
+st.markdown("---")
+st.subheader("ℹ️ Understanding the Evaluation Metrics")
+
+metric_info = pd.DataFrame({
+    "Metric": ["MSE", "RMSE", "MAE"],
+    "Full Name": [
+        "Mean Squared Error",
+        "Root Mean Squared Error",
+        "Mean Absolute Error"
+    ],
+    "How It Is Calculated": [
+        "Average of squared prediction errors",
+        "Square root of MSE",
+        "Average of absolute prediction errors"
+    ],
+    "Interpretation": [
+        "Penalizes larger errors more heavily",
+        "Shows error in same scale as target value",
+        "Shows the average magnitude of prediction errors"
+    ]
+})
+
+st.table(metric_info)
+
 
 
 # ===============================
@@ -231,3 +285,4 @@ st.info("""
 ### ℹ️ RMSE Meaning  
 Lower RMSE = better prediction accuracy.
 """)
+
