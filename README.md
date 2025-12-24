@@ -31,8 +31,9 @@ The project combines **Exploratory Data Analysis (EDA)**, **Machine Learning**, 
 
 ---
 
-## ▶ Live Demo
+## ▶ Click On Image To Open App
 [![Soil Moisture App](https://github.com/MuhammadSaad-ml/Soil-Moisture-Model/raw/main/IMG.png)](https://soil-moisture-model-b3fyewezy3s9ganhibrr8v.streamlit.app/)
+
 
 
 
