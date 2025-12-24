@@ -5,8 +5,6 @@
 <img src="https://img.shields.io/badge/Build_with-Python-red">
 <img src="https://img.shields.io/badge/Framework-Streamlit-yellow">
 <img src="https://img.shields.io/badge/Webapp-Interactive-purple">
-
-<!-- Data & Domain -->
 <img src="https://img.shields.io/badge/Data-Agriculture-hotpink">
 <img src="https://img.shields.io/badge/Smart_Agriculture-AI-brightgreen">
 <img src="https://img.shields.io/badge/Precision_Farming-Enabled-success">
