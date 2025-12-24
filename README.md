@@ -32,7 +32,8 @@ The project combines **Exploratory Data Analysis (EDA)**, **Machine Learning**, 
 ---
 
 ## ▶ Live Demo
-[![Open App](https://img.shields.io/badge/Open%20Live%20App-Streamlit-ff4b4b?style=for-the-badge&logo=streamlit)](https://soil-moisture-model-b3fyewezy3s9ganhibrr8v.streamlit.app/)
+[![Soil Moisture App](https://github.com/MuhammadSaad-ml/Soil-Moisture-Model/raw/main/IMG.png)](https://soil-moisture-model-b3fyewezy3s9ganhibrr8v.streamlit.app/)
+
 
 
 
