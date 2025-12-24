@@ -32,7 +32,7 @@ The project combines **Exploratory Data Analysis (EDA)**, **Machine Learning**, 
 ---
 
 ## ▶ Click On Image To Open Demo
-[![Example](https://i.imgur.com/CRstwB3.png)](https://www.youtube.com/)
+[![Example]()](https://www.youtube.com/)
 
 ---
 
