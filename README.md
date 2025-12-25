@@ -1,13 +1,8 @@
 <img src="https://img.shields.io/badge/Machine_Learning-green"> <img src="https://img.shields.io/badge/Build_with-Python-red"> <img src="https://img.shields.io/badge/Framework-Streamlit-yellow"> <img src="https://img.shields.io/badge/Webapp-Interactive-purple"> <img src="https://img.shields.io/badge/Data-Agriculture-hotpink"> <img src="https://img.shields.io/badge/Smart_Agriculture-AI-brightgreen"> <img src="https://img.shields.io/badge/Precision_Farming-Enabled-success"> <img src="https://img.shields.io/badge/Soil_Health-Monitoring-brown"> <img src="https://img.shields.io/badge/Irrigation-Decision_Support-blue">
-
 <img src="https://img.shields.io/badge/Pandas-Data_Analysis-orange"> <img src="https://img.shields.io/badge/NumPy-Scientific_Computing-blue"> <img src="https://img.shields.io/badge/Scikit--Learn-ML_Modeling-f7931e"> <img src="https://img.shields.io/badge/Plotly-Interactive_Charts-3f4f75">
-
 <img src="https://img.shields.io/badge/Regression-Soil_Moisture_Prediction-green"> <img src="https://img.shields.io/badge/Decision_Tree-Regressor-yellowgreen"> <img src="https://img.shields.io/badge/Neural_Network-MLP_Regressor-blue">
-
 <img src="https://img.shields.io/badge/Model_Tuning-Interactive-yellow"> <img src="https://img.shields.io/badge/Train_Test_Split-Dynamic-blueviolet">
-
 <img src="https://img.shields.io/badge/Anaconda-Environment-a8b59c"> <img src="https://img.shields.io/badge/VS_Code-IDE-blueviolet">
-
 <img src="https://img.shields.io/badge/Open_Source-Yes-brightgreen"> <img src="https://img.shields.io/badge/End--to--End-ML_Project-gold"> <img src="https://img.shields.io/badge/Beginner_Friendly-Yes-blue">
 
 
