@@ -1,4 +1,6 @@
-<img src="https://img.shields.io/badge/Machine_Learning-green"> <img src="https://img.shields.io/badge/Build_with-Python-red"> <img src="https://img.shields.io/badge/Framework-Streamlit-yellow"> <img src="https://img.shields.io/badge/Webapp-Interactive-purple"> <img src="https://img.shields.io/badge/Data-Agriculture-hotpink"> <img src="https://img.shields.io/badge/Smart_Agriculture-AI-brightgreen"> <img src="https://img.shields.io/badge/Precision_Farming-Enabled-success"> <img src="https://img.shields.io/badge/Soil_Health-Monitoring-brown"> <img src="https://img.shields.io/badge/Irrigation-Decision_Support-blue">
+<img src="https://img.shields.io/badge/Machine_Learning-green"> <img src="https://img.shields.io/badge/Build_with-Python-red"> <img src="https://img.shields.io/badge/Framework-Streamlit-yellow"> <img src="https://img.shields.io/badge/Webapp-Interactive-purple"> <img src="https://img.shields.io/badge/Data-Agriculture-hotpink"> <img src="https://img.shields.io/badge/Smart_Agriculture-AI-brightgreen"> <img src="https://img.shields.io/badge/Precision_Farming-Enabled-success"> 
+
+<img src="https://img.shields.io/badge/Soil_Health-Monitoring-brown"> <img src="https://img.shields.io/badge/Irrigation-Decision_Support-blue">
 
 <img src="https://img.shields.io/badge/Pandas-Data_Analysis-orange"> <img src="https://img.shields.io/badge/NumPy-Scientific_Computing-blue"> <img src="https://img.shields.io/badge/Scikit--Learn-ML_Modeling-f7931e"> <img src="https://img.shields.io/badge/Plotly-Interactive_Charts-3f4f75">
 
