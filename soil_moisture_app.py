@@ -88,7 +88,7 @@ filtered_df = df[
 
 
 # ===============================
-# 3. Soil Moisture Detection
+# 3. Soil Moisture Column Detection
 # ===============================
 if "soil_moisture_%" in df.columns:
     soil_col = "soil_moisture_%"
@@ -152,7 +152,7 @@ X_test_scaled = scaler.transform(X_test)
 
 
 # ===============================
-# 5. Traditional ML Models
+# 5. Train Models
 # ===============================
 dt_model = DecisionTreeRegressor(max_depth=tree_depth, random_state=42)
 dt_model.fit(X_train, y_train)
@@ -166,94 +166,66 @@ nn_model = MLPRegressor(
 nn_model.fit(X_train_scaled, y_train)
 nn_pred = nn_model.predict(X_test_scaled)
 
+
+# ===============================
+# 6. Actual vs Predicted
+# ===============================
+st.subheader("📉 Model Accuracy Comparison")
+
+dt_df = pd.DataFrame({"Actual": y_test.values, "Predicted": dt_pred})
+dt_df["Error"] = abs(dt_df["Actual"] - dt_df["Predicted"])
+
+nn_df = pd.DataFrame({"Actual": y_test.values, "Predicted": nn_pred})
+nn_df["Error"] = abs(nn_df["Actual"] - nn_df["Predicted"])
+
+
+# ===============================
+# 🔴 NEW SECTION: Highest Error Analysis (ONLY ADDITION)
+# ===============================
+st.markdown("## 🚨 Highest Prediction Errors")
+
+combined_errors = pd.concat([
+    dt_df.assign(Model="Decision Tree"),
+    nn_df.assign(Model="Neural Network")
+])
+
+top_errors = combined_errors.sort_values("Error", ascending=False).head(10)
+
+st.markdown("### ❌ Top 10 Worst Predictions (Actual vs Predicted)")
+st.dataframe(top_errors, use_container_width=True)
+
+fig_err = px.bar(
+    top_errors,
+    x=top_errors.index,
+    y="Error",
+    color="Model",
+    title="Highest Absolute Prediction Errors"
+)
+st.plotly_chart(fig_err, use_container_width=True)
+
+
+# ===============================
+# 7. Model Performance Summary
+# ===============================
+dt_mae = mean_absolute_error(y_test, dt_pred)
 dt_rmse = np.sqrt(mean_squared_error(y_test, dt_pred))
+
+nn_mae = mean_absolute_error(y_test, nn_pred)
 nn_rmse = np.sqrt(mean_squared_error(y_test, nn_pred))
 
-dt_mae = mean_absolute_error(y_test, dt_pred)
-nn_mae = mean_absolute_error(y_test, nn_pred)
+st.markdown("## 📐 Model Performance Metrics")
+st.metric("🌳 DT RMSE", f"{dt_rmse:.2f}")
+st.metric("🤖 NN RMSE", f"{nn_rmse:.2f}")
 
 
 # ===============================
-# 🌱 6. TinyML Model (NEW – EDGE SIMULATION)
-# ===============================
-st.markdown("## 🌱 TinyML Model (Edge Device Simulation)")
-
-tiny_features = ["temperature_C", "humidity_%"]
-X_tiny = filtered_df[tiny_features]
-y_tiny = filtered_df[soil_col]
-
-X_train_t, X_test_t, y_train_t, y_test_t = train_test_split(
-    X_tiny, y_tiny, test_size=test_size, random_state=42
-)
-
-tiny_scaler = StandardScaler()
-X_train_t = tiny_scaler.fit_transform(X_train_t)
-X_test_t = tiny_scaler.transform(X_test_t)
-
-tiny_model = DecisionTreeRegressor(
-    max_depth=2,
-    min_samples_leaf=10,
-    random_state=42
-)
-
-tiny_model.fit(X_train_t, y_train_t)
-tiny_pred = tiny_model.predict(X_test_t)
-
-tiny_rmse = np.sqrt(mean_squared_error(y_test_t, tiny_pred))
-tiny_mae = mean_absolute_error(y_test_t, tiny_pred)
-
-
-# ===============================
-# 7. Model Comparison
-# ===============================
-st.markdown("## 📊 Traditional ML vs TinyML Comparison")
-
-compare_df = pd.DataFrame({
-    "Model": ["Decision Tree", "Neural Network", "TinyML"],
-    "MAE": [dt_mae, nn_mae, tiny_mae],
-    "RMSE": [dt_rmse, nn_rmse, tiny_rmse]
-})
-
-st.dataframe(compare_df)
-
-fig_compare = px.bar(compare_df, x="Model", y="RMSE", color="Model")
-st.plotly_chart(fig_compare, use_container_width=True)
-
-
-# ===============================
-# 8. Explanation Section
-# ===============================
-st.markdown("""
-## 🧠 Traditional Machine Learning vs TinyML
-
-| Aspect | Traditional ML | TinyML |
-|------|---------------|-------|
-| Deployment | Cloud / PC | Microcontroller |
-| Model Size | Large | Very Small |
-| Accuracy | High | Moderate |
-| Power | High | Ultra-low |
-| Latency | Medium | Real-time |
-| Example | Dashboards | Field sensors |
-
-✔️ Your app now demonstrates **both paradigms**
-""")
-
-
-# ===============================
-# 9. Latest Predictions
+# 8. Latest Predictions
 # ===============================
 latest_features = X.tail(1)
 
 dt_latest = dt_model.predict(latest_features)[0]
 nn_latest = nn_model.predict(scaler.transform(latest_features))[0]
 
-latest_tiny = tiny_scaler.transform(
-    latest_features[tiny_features]
-)
-tiny_latest = tiny_model.predict(latest_tiny)[0]
-
 st.markdown("## 💧 Latest Soil Moisture Prediction")
-
-st.markdown(f"🌳 **Decision Tree:** {dt_latest:.2f}%")
-st.markdown(f"🤖 **Neural Network:** {nn_latest:.2f}%")
-st.markdown(f"🌱 **TinyML:** {tiny_latest:.2f}%")
+st.markdown(f"🌳 Decision Tree: **{dt_latest:.2f}%**")
+st.markdown(f"🤖 Neural Network: **{nn_latest:.2f}%**")
