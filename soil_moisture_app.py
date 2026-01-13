@@ -147,6 +147,27 @@ else:
 
 
 # ===============================
+# 🗺️ Field Location Map (Lat / Long)
+# ===============================
+st.subheader("🗺️ Field Location Map (Filtered by Selected Region)")
+
+# Check if latitude & longitude exist
+if {"latitude", "longitude"}.issubset(filtered_df.columns):
+
+    map_df = filtered_df[["latitude", "longitude"]].dropna()
+
+    if len(map_df) > 0:
+        st.map(map_df)
+        st.caption("📍 Showing field locations for the selected region, crop, and fertilizer.")
+    else:
+        st.warning("⚠ No valid latitude/longitude data available for this selection.")
+
+else:
+    st.error("❌ Dataset must contain 'latitude' and 'longitude' columns for map visualization.")
+
+
+
+# ===============================
 # 4. Model Preparation
 # ===============================
 model_features = ["temperature_C", "humidity_%", "rainfall_mm", "soil_pH"]
@@ -331,3 +352,4 @@ st.markdown(
     f"<p style='color:{bar_color}; font-size:18px;'>{condition}</p>",
     unsafe_allow_html=True
 )
+
