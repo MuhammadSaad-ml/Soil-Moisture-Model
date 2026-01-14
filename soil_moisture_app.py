@@ -9,6 +9,8 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.neural_network import MLPRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
+from streamlit_plotly_events import plotly_events
+
 
 # ===============================
 # 🌱 App Configuration
@@ -22,32 +24,13 @@ This model predicts **soil moisture** based on temperature, humidity, rainfall, 
 
 
 # ===============================
-# ⚙️ Model Tuning Controls (NEW)
+# ⚙️ Model Tuning Controls
 # ===============================
 st.sidebar.header("⚙️ Model Tuning Controls")
 
-test_size = st.sidebar.slider(
-    "Train/Test Split (Test Size)",
-    min_value=0.1,
-    max_value=0.4,
-    value=0.2,
-    step=0.05
-)
-
-tree_depth = st.sidebar.slider(
-    "Decision Tree Max Depth",
-    min_value=2,
-    max_value=15,
-    value=5
-)
-
-nn_layer_size = st.sidebar.slider(
-    "Neural Network Hidden Layer Size",
-    min_value=16,
-    max_value=128,
-    value=50,
-    step=16
-)
+test_size = st.sidebar.slider("Train/Test Split (Test Size)", 0.1, 0.4, 0.2, 0.05)
+tree_depth = st.sidebar.slider("Decision Tree Max Depth", 2, 15, 5)
+nn_layer_size = st.sidebar.slider("Neural Network Hidden Layer Size", 16, 128, 50, 16)
 
 
 # ===============================
@@ -61,27 +44,22 @@ df = load_data()
 
 
 # ===============================
-# 2. Filters (Region, Crop, Fertilizer)
+# 2. Filters
 # ===============================
 col0, col1, col2, col3 = st.columns(4)
 
 with col0:
     region = st.selectbox("Select Region:", df["region"].unique())
-
 with col1:
     crop = st.selectbox("Select Crop Type:", df["crop_type"].unique())
-
 with col2:
     fertilizer = st.selectbox("Select Fertilizer:", df["fertilizer_type"].unique())
-
 with col3:
     feature_x = st.selectbox(
-        "Select X-Axis Feature (for visualization only):",
+        "Select X-Axis Feature:",
         ["temperature_C", "humidity_%", "rainfall_mm", "soil_pH"]
     )
 
-
-# Apply filters
 filtered_df = df[
     (df["region"] == region) &
     (df["crop_type"] == crop) &
@@ -90,18 +68,14 @@ filtered_df = df[
 
 
 # ===============================
-# 3. Soil Moisture Column Detection + Classification
+# 3. Soil Moisture Detection
 # ===============================
 if "soil_moisture_%" in df.columns:
     soil_col = "soil_moisture_%"
 elif "soil_moisture" in df.columns:
     soil_col = "soil_moisture"
 else:
-    candidates = [c for c in df.columns if "moisture" in c.lower()]
-    if len(candidates) == 0:
-        st.error("❌ No soil moisture column found in the dataset.")
-        st.stop()
-    soil_col = candidates[0]
+    soil_col = [c for c in df.columns if "moisture" in c.lower()][0]
 
 st.caption(f"Using soil moisture column: **{soil_col}**")
 
@@ -114,9 +88,11 @@ filtered_df["Soil_Moisture_Level"] = pd.cut(
 
 
 # ===============================
-# 📊 Visualization Section
+# 📊 Visualization (CLICK ENABLED)
 # ===============================
 st.subheader("📊 Soil Moisture Relationship Visualization")
+
+st.session_state.setdefault("selected_row", None)
 
 if len(filtered_df) > 0:
     fig_vis = px.scatter(
@@ -124,47 +100,59 @@ if len(filtered_df) > 0:
         x=feature_x,
         y=soil_col,
         color="Soil_Moisture_Level",
-        title=f"Soil Moisture vs {feature_x}",
-        labels={
-            feature_x: feature_x.replace("_", " ").title(),
-            soil_col: "Soil Moisture (%)"
-        },
-        color_discrete_map={"Dry": "red", "Optimal": "green", "Wet": "blue"}
+        color_discrete_map={"Dry": "red", "Optimal": "green", "Wet": "blue"},
+        title=f"Soil Moisture vs {feature_x}"
     )
 
     fig_vis.update_traces(marker=dict(size=11, opacity=0.75))
-    fig_vis.update_layout(height=450)
 
-    st.plotly_chart(fig_vis, use_container_width=True)
+    selected_points = plotly_events(
+        fig_vis,
+        click_event=True,
+        hover_event=False,
+        select_event=False,
+        key="soil_chart"
+    )
 
-    st.markdown("### 🔍 Data Preview")
+    if selected_points:
+        idx = selected_points[0]["pointIndex"]
+        st.session_state["selected_row"] = filtered_df.iloc[idx]
+    else:
+        st.session_state["selected_row"] = None
+
     st.dataframe(
         filtered_df[[feature_x, soil_col, "Soil_Moisture_Level"]],
         use_container_width=True
     )
 else:
-    st.warning("⚠ No data available for the selected filters.")
+    st.warning("⚠ No data available.")
 
 
 # ===============================
-# 🗺️ Field Location Map (Lat / Long)
+# 🗺️ INTERACTIVE MAP (ACTION FILTER)
 # ===============================
-st.subheader("🗺️ Field Location Map (Filtered by Selected Region)")
+st.subheader("🗺️ Field Location Map")
 
-# Check if latitude & longitude exist
 if {"latitude", "longitude"}.issubset(filtered_df.columns):
 
-    map_df = filtered_df[["latitude", "longitude"]].dropna()
+    # If chart point clicked → show only that location
+    if st.session_state["selected_row"] is not None:
+        map_df = pd.DataFrame([{
+            "latitude": st.session_state["selected_row"]["latitude"],
+            "longitude": st.session_state["selected_row"]["longitude"]
+        }])
 
-    if len(map_df) > 0:
         st.map(map_df)
-        st.caption("📍 Showing field locations for the selected region, crop, and fertilizer.")
+        st.caption("📍 Showing location selected from chart.")
+
+    # Else → show entire region
     else:
-        st.warning("⚠ No valid latitude/longitude data available for this selection.")
+        map_df = filtered_df[["latitude", "longitude"]].dropna()
+        st.map(map_df)
+        st.caption("📍 Showing all locations in selected region.")
 
 else:
-    st.error("❌ Dataset must contain 'latitude' and 'longitude' columns for map visualization.")
-
+    st.error("❌ Latitude/Longitude columns missing.")
 
 
 # ===============================
@@ -193,13 +181,9 @@ X_test_scaled = scaler.transform(X_test)
 # ===============================
 # 5. Train Models
 # ===============================
-dt_model = DecisionTreeRegressor(
-    max_depth=tree_depth,
-    random_state=42
-)
+dt_model = DecisionTreeRegressor(max_depth=tree_depth, random_state=42)
 dt_model.fit(X_train, y_train)
 dt_pred = dt_model.predict(X_test)
-dt_rmse = np.sqrt(mean_squared_error(y_test, dt_pred))
 
 nn_model = MLPRegressor(
     hidden_layer_sizes=(nn_layer_size, nn_layer_size),
@@ -208,149 +192,35 @@ nn_model = MLPRegressor(
 )
 nn_model.fit(X_train_scaled, y_train)
 nn_pred = nn_model.predict(X_test_scaled)
-nn_rmse = np.sqrt(mean_squared_error(y_test, nn_pred))
 
 
 # ===============================
-# 6. Actual vs Predicted Comparison
+# 6. Model Performance
 # ===============================
-st.subheader("📉 Model Accuracy Comparison: Actual vs Predicted Soil Moisture")
+st.subheader("📉 Model Accuracy Comparison")
 
 col1, col2 = st.columns(2)
 
 with col1:
-    st.markdown("### 🌳 Decision Tree")
-    dt_df = pd.DataFrame({"Actual": y_test.values, "Predicted": dt_pred})
+    dt_df = pd.DataFrame({"Actual": y_test, "Predicted": dt_pred})
     dt_df["Error"] = abs(dt_df["Actual"] - dt_df["Predicted"])
     st.dataframe(dt_df, use_container_width=True)
 
-    fig_dt = px.scatter(
-        dt_df,
-        x="Actual",
-        y="Predicted",
-        color="Error",
-        color_continuous_scale="Viridis"
-    )
-    st.plotly_chart(fig_dt, use_container_width=True)
-
 with col2:
-    st.markdown("### 🤖 Neural Network")
-    nn_df = pd.DataFrame({"Actual": y_test.values, "Predicted": nn_pred})
+    nn_df = pd.DataFrame({"Actual": y_test, "Predicted": nn_pred})
     nn_df["Error"] = abs(nn_df["Actual"] - nn_df["Predicted"])
     st.dataframe(nn_df, use_container_width=True)
 
-    fig_nn = px.scatter(
-        nn_df,
-        x="Actual",
-        y="Predicted",
-        color="Error",
-        color_continuous_scale="Viridis"
-    )
-    st.plotly_chart(fig_nn, use_container_width=True)
-
 
 # ===============================
-# 🔴 NEW SECTION (ONLY ADDITION)
-# ===============================
-st.markdown("## 🚨 Highest Prediction Errors (Actual vs Predicted)")
-
-combined_errors = pd.concat([
-    dt_df.assign(Model="Decision Tree"),
-    nn_df.assign(Model="Neural Network")
-])
-
-highest_errors = combined_errors.sort_values("Error", ascending=False).head(10)
-
-st.dataframe(highest_errors, use_container_width=True)
-
-fig_high_err = px.bar(
-    highest_errors,
-    x=highest_errors.index,
-    y="Error",
-    color="Model",
-    title="Top 10 Highest Prediction Errors"
-)
-st.plotly_chart(fig_high_err, use_container_width=True)
-
-
-# ===============================
-# 7. Model Performance Summary
-# ===============================
-dt_mae = mean_absolute_error(y_test, dt_pred)
-dt_mse = mean_squared_error(y_test, dt_pred)
-nn_mae = mean_absolute_error(y_test, nn_pred)
-nn_mse = mean_squared_error(y_test, nn_pred)
-
-dt_std = np.std(abs(y_test - dt_pred))
-nn_std = np.std(abs(y_test - nn_pred))
-
-st.markdown("## 📐 Model Performance Metrics")
-
-colA, colB, colC, colD = st.columns(4)
-colA.metric("🌳 DT – MAE", f"{dt_mae:.2f}")
-colB.metric("🌳 DT – MSE", f"{dt_mse:.2f}")
-colC.metric("🌳 DT – RMSE", f"{dt_rmse:.2f}")
-colD.metric("🌳 DT – Std Dev", f"{dt_std:.2f}")
-
-colA2, colB2, colC2, colD2 = st.columns(4)
-colA2.metric("🤖 NN – MAE", f"{nn_mae:.2f}")
-colB2.metric("🤖 NN – MSE", f"{nn_mse:.2f}")
-colC2.metric("🤖 NN – RMSE", f"{nn_rmse:.2f}")
-colD2.metric("🤖 NN – Std Dev", f"{nn_std:.2f}")
-
-
-# ===============================
-# ℹ️ Metric Explanation
-# ===============================
-st.markdown("""
-### ℹ️ What Do These Numbers Mean?
-
-| Metric | Meaning | Why it Matters |
-|------|--------|---------------|
-| **MAE** | Average prediction error | Easy to interpret |
-| **MSE** | Penalizes large mistakes | Detects instability |
-| **RMSE** | Error in real units (%) | Most intuitive |
-| **Std Dev** | Error consistency | Lower = more reliable |
-""")
-
-
-# ===============================
-# 8. Latest Predictions
+# 7. Latest Prediction
 # ===============================
 latest_features = X.tail(1)
 
 dt_latest = dt_model.predict(latest_features)[0]
 nn_latest = nn_model.predict(scaler.transform(latest_features))[0]
 
-st.markdown("---")
 st.subheader("💧 Latest Soil Moisture Prediction")
 
-colA, colB = st.columns(2)
-colA.markdown(
-    f"<h3 style='color:#2DBBCC;'>🌳 {dt_latest:.2f}%</h3>",
-    unsafe_allow_html=True
-)
-colB.markdown(
-    f"<h3 style='color:#2DBBCC;'>🤖 {nn_latest:.2f}%</h3>",
-    unsafe_allow_html=True
-)
-
-avg = (dt_latest + nn_latest) / 2
-
-if avg < 30:
-    condition = "🌵 Dry — Needs Water"
-    bar_color = "red"
-elif avg < 60:
-    condition = "🌾 Optimal"
-    bar_color = "green"
-else:
-    condition = "💧 Too Wet"
-    bar_color = "blue"
-
-st.progress(int(avg))
-st.markdown(
-    f"<p style='color:{bar_color}; font-size:18px;'>{condition}</p>",
-    unsafe_allow_html=True
-)
-
-
+st.metric("🌳 Decision Tree", f"{dt_latest:.2f}%")
+st.metric("🤖 Neural Network", f"{nn_latest:.2f}%")
