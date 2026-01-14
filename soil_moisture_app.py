@@ -95,7 +95,7 @@ with col3:
     fertilizer = st.selectbox("Select Fertilizer:", df["fertilizer_type"].unique())
 
 
-with col4:
+with col3:
     feature_x = st.selectbox(
         "Select X-Axis Feature (for visualization only):",
         ["temperature_C", "humidity_%", "rainfall_mm", "soil_pH"]
@@ -359,4 +359,5 @@ st.markdown(
     f"<p style='color:{bar_color}; font-size:18px;'>{condition}</p>",
     unsafe_allow_html=True
 )
+
 
