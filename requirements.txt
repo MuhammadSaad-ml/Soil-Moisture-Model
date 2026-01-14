@@ -9,3 +9,5 @@ statsmodels
 
 # Optional: useful for future expansion or model saving
 joblib>=1.4.2
+streamlit-plotly-events
+
