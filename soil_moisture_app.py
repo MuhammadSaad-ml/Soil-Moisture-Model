@@ -180,6 +180,8 @@ else:
 model_features = ["temperature_C", "humidity_%", "rainfall_mm", "soil_pH"]
 X = filtered_df[model_features].copy()
 
+
+
 le_crop = LabelEncoder()
 le_fert = LabelEncoder()
 
@@ -187,10 +189,27 @@ X["crop_type_encoded"] = le_crop.fit_transform(filtered_df["crop_type"])
 X["fertilizer_type_encoded"] = le_fert.fit_transform(filtered_df["fertilizer_type"])
 
 y = filtered_df[soil_col]
+# 🚨 Not enough data safeguard
+if len(filtered_df) < 5:
+    st.warning(
+        "⚠ Not enough data for model training at this location. "
+        "Showing predictions using available data only."
+    )
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=test_size, random_state=42
-)
+    # Use entire data for prediction only
+    X_train = X
+    y_train = y
+    X_test = X
+    y_test = y
+else:
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=test_size, random_state=42
+    )
+
+
+# X_train, X_test, y_train, y_test = train_test_split(
+#     X, y, test_size=test_size, random_state=42
+# )
 
 scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
@@ -359,5 +378,6 @@ st.markdown(
     f"<p style='color:{bar_color}; font-size:18px;'>{condition}</p>",
     unsafe_allow_html=True
 )
+
 
 
