@@ -68,13 +68,34 @@ col0, col1, col2, col3 = st.columns(4)
 with col0:
     region = st.selectbox("Select Region:", df["region"].unique())
 
+# Create location label from lat/long
+df["location_label"] = (
+    df["latitude"].round(4).astype(str) + ", " +
+    df["longitude"].round(4).astype(str)
+)
+
+# Locations available inside selected region
+region_locations = (
+    df[df["region"] == region]["location_label"]
+    .unique()
+    .tolist()
+)
+
 with col1:
-    crop = st.selectbox("Select Crop Type:", df["crop_type"].unique())
+    location = st.selectbox(
+        "Select Location (Lat, Long):",
+        options=["All Locations"] + region_locations
+    )
+
 
 with col2:
-    fertilizer = st.selectbox("Select Fertilizer:", df["fertilizer_type"].unique())
+    crop = st.selectbox("Select Crop Type:", df["crop_type"].unique())
 
 with col3:
+    fertilizer = st.selectbox("Select Fertilizer:", df["fertilizer_type"].unique())
+
+
+with col4:
     feature_x = st.selectbox(
         "Select X-Axis Feature (for visualization only):",
         ["temperature_C", "humidity_%", "rainfall_mm", "soil_pH"]
@@ -87,6 +108,13 @@ filtered_df = df[
     (df["crop_type"] == crop) &
     (df["fertilizer_type"] == fertilizer)
 ].copy()
+
+# Apply location filter if selected
+if location != "All Locations":
+    filtered_df = filtered_df[
+        filtered_df["location_label"] == location
+    ]
+
 
 
 # ===============================
@@ -331,3 +359,4 @@ st.markdown(
     f"<p style='color:{bar_color}; font-size:18px;'>{condition}</p>",
     unsafe_allow_html=True
 )
+
