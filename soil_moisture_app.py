@@ -133,12 +133,28 @@ else:
 
 st.caption(f"Using soil moisture column: **{soil_col}**")
 
-bins = [0, 30, 60, 100]
-labels = ["Dry", "Optimal", "Wet"]
+# ===============================
+# 3b. Fine-Grained Soil Moisture Classification (NEW)
+# ===============================
+
+bins = [0, 10, 20, 30, 40, 50, 60, 100]
+labels = [
+    "Very Dry (0–10%)",
+    "Dry (10–20%)",
+    "Moderate Dry (20–30%)",
+    "Optimal Low (30–40%)",
+    "Optimal High (40–50%)",
+    "Wet (50–60%)",
+    "Very Wet (>60%)"
+]
 
 filtered_df["Soil_Moisture_Level"] = pd.cut(
-    filtered_df[soil_col], bins=bins, labels=labels
+    filtered_df[soil_col],
+    bins=bins,
+    labels=labels,
+    include_lowest=True
 )
+
 
 
 # ===============================
@@ -378,6 +394,7 @@ st.markdown(
     f"<p style='color:{bar_color}; font-size:18px;'>{condition}</p>",
     unsafe_allow_html=True
 )
+
 
 
 
