@@ -138,15 +138,16 @@ st.caption(f"Using soil moisture column: **{soil_col}**")
 # ===============================
 
 bins = [0, 10, 20, 30, 40, 50, 60, 100]
-labels = [
-    "Very Dry (0–10%)",
-    "Dry (10–20%)",
-    "Moderate Dry (20–30%)",
-    "Optimal Low (30–40%)",
-    "Optimal High (40–50%)",
-    "Wet (50–60%)",
-    "Very Wet (>60%)"
-]
+color_discrete_map={
+    "Very Dry (0–10%)": "#8B0000",
+    "Dry (10–20%)": "#FF4500",
+    "Moderate Dry (20–30%)": "#FFA500",
+    "Optimal Low (30–40%)": "#9ACD32",
+    "Optimal High (40–50%)": "#228B22",
+    "Wet (50–60%)": "#1E90FF",
+    "Very Wet (>60%)": "#00008B"
+}
+
 
 filtered_df["Soil_Moisture_Level"] = pd.cut(
     filtered_df[soil_col],
@@ -394,6 +395,7 @@ st.markdown(
     f"<p style='color:{bar_color}; font-size:18px;'>{condition}</p>",
     unsafe_allow_html=True
 )
+
 
 
 
