@@ -59,6 +59,37 @@ def load_data():
 
 df = load_data()
 
+# ===============================
+# 🌍 Correct Latitude/Longitude by Region
+# ===============================
+import numpy as np
+
+def fix_coordinates(row):
+    region = row["region"]
+    # Define bounding boxes: (min_lat, max_lat, min_lon, max_lon)
+    region_bounds = {
+        "North India":      (28.0, 34.0, 75.0, 80.0),
+        "South India":      (8.0, 15.0, 75.0, 80.0),
+        "South USA":        (25.0, 36.0, -100.0, -80.0),
+        "North USA":        (40.0, 49.0, -125.0, -70.0),
+        "Europe":           (45.0, 55.0, 5.0, 15.0),
+        "South America":    (-35.0, 5.0, -70.0, -35.0),
+        "Africa":           (-35.0, 15.0, -20.0, 50.0),
+        "Australia":        (-40.0, -10.0, 110.0, 155.0),
+        "East Asia":        (20.0, 50.0, 100.0, 145.0)
+    }
+    
+    if region in region_bounds:
+        min_lat, max_lat, min_lon, max_lon = region_bounds[region]
+        lat = np.random.uniform(min_lat, max_lat)
+        lon = np.random.uniform(min_lon, max_lon)
+        return pd.Series([lat, lon])
+    else:
+        # If region unknown, keep original
+        return pd.Series([row["latitude"], row["longitude"]])
+
+df[["latitude", "longitude"]] = df.apply(fix_coordinates, axis=1)
+
 
 # ===============================
 # 2. Filters (Region, Crop, Fertilizer)
@@ -432,6 +463,7 @@ st.markdown(
     f"<p style='color:{bar_color}; font-size:18px;'>{condition}</p>",
     unsafe_allow_html=True
 )
+
 
 
 
