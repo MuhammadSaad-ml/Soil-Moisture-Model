@@ -380,21 +380,31 @@ colB.markdown(
 
 avg = (dt_latest + nn_latest) / 2
 
-if avg < 30:
-    condition = "🌵 Dry — Needs Water"
+if 10 <= avg < 20:
+    condition = "🚰 Water Needed (10–20%)"
     bar_color = "red"
-elif avg < 60:
-    condition = "🌾 Optimal"
+elif avg < 10:
+    condition = "🌵 Very Dry (<10%)"
+    bar_color = "orange"
+elif avg < 30:
+    condition = "🌾 Slightly Dry (20–30%)"
+    bar_color = "yellow"
+elif avg < 50:
+    condition = "🌱 Optimal"
     bar_color = "green"
-else:
-    condition = "💧 Too Wet"
+elif avg < 60:
+    condition = "💧 Wet"
     bar_color = "blue"
+else:
+    condition = "🌊 Very Wet (>60%)"
+    bar_color = "darkblue"
 
 st.progress(int(avg))
 st.markdown(
     f"<p style='color:{bar_color}; font-size:18px;'>{condition}</p>",
     unsafe_allow_html=True
 )
+
 
 
 
