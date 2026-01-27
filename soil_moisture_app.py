@@ -99,48 +99,7 @@ filtered_df = df[
     (df["fertilizer_type"] == fertilizer)
 ].copy()
 
-# ===============================
-# 🗺️ Spatial Drill-Down: Farm-Level Soil Moisture Map
-# ===============================
-st.subheader("🗺️ Spatial View: Soil Moisture by Location")
 
-if len(filtered_df) > 0:
-
-    map_df = filtered_df.copy()
-
-    fig_map = px.scatter_mapbox(
-        map_df,
-        lat="latitude",
-        lon="longitude",
-        color=soil_col,
-        size=soil_col,
-        size_max=18,
-        zoom=4,
-        hover_name="farm_id",
-        hover_data={
-            "region": True,
-            "crop_type": True,
-            soil_col: True,
-            "temperature_C": True,
-            "humidity_%": True,
-            "rainfall_mm": True,
-            "NDVI_index": True,
-            "crop_disease_status": True
-        },
-        color_continuous_scale="RdYlGn",
-        title=f"Soil Moisture Distribution in {region}"
-    )
-
-    fig_map.update_layout(
-        mapbox_style="open-street-map",
-        height=500,
-        margin={"r":0,"t":40,"l":0,"b":0}
-    )
-
-    st.plotly_chart(fig_map, use_container_width=True)
-
-else:
-    st.warning("⚠ No location data available for the selected region.")
 
 # ===============================
 # 3. Soil Moisture Column Detection + Classification
@@ -429,6 +388,7 @@ st.markdown(
     f"<p style='color:{bar_color}; font-size:18px;'>{condition}</p>",
     unsafe_allow_html=True
 )
+
 
 
 
