@@ -42,24 +42,17 @@ df = load_data()
 
 
 # ===============================
-# 2. Filters
+# 2. Filters (Region, Crop, Fertilizer)
 # ===============================
 col0, col1, col2, col3 = st.columns(4)
 
 with col0:
     region = st.selectbox("Select Region:", df["region"].unique())
 
-df["location_label"] = df["latitude"].round(4).astype(str) + ", " + df["longitude"].round(4).astype(str)
-
-region_locations = df[df["region"] == region]["location_label"].unique().tolist()
-
 with col1:
-    location = st.selectbox("Select Location (Lat, Long):", ["All Locations"] + region_locations)
-
-with col2:
     crop = st.selectbox("Select Crop Type:", df["crop_type"].unique())
 
-with col3:
+with col2:
     fertilizer = st.selectbox("Select Fertilizer:", df["fertilizer_type"].unique())
 
 with col3:
@@ -68,36 +61,45 @@ with col3:
         ["temperature_C", "humidity_%", "rainfall_mm", "soil_pH"]
     )
 
+
+# Apply filters
 filtered_df = df[
     (df["region"] == region) &
     (df["crop_type"] == crop) &
     (df["fertilizer_type"] == fertilizer)
 ].copy()
 
-if location != "All Locations":
-    filtered_df = filtered_df[filtered_df["location_label"] == location]
-
 
 # ===============================
 # 3. Soil Moisture Column Detection
 # ===============================
-soil_col = "soil_moisture_%" if "soil_moisture_%" in df.columns else "soil_moisture"
+if "soil_moisture_%" in df.columns:
+    soil_col = "soil_moisture_%"
+elif "soil_moisture" in df.columns:
+    soil_col = "soil_moisture"
+else:
+    candidates = [c for c in df.columns if "moisture" in c.lower()]
+    if len(candidates) == 0:
+        st.error("❌ No soil moisture column found.")
+        st.stop()
+    soil_col = candidates[0]
+
 st.caption(f"Using soil moisture column: **{soil_col}**")
 
 
 # ===============================
-# 3b. Fine-Grained Soil Moisture Classification (FIXED)
+# 3b. Fine-Grained Soil Moisture Classification
 # ===============================
 bins = [0, 10, 20, 30, 40, 50, 60, 100]
-labels = [
-    "Very Dry (0–10%)",
-    "Dry (10–20%)",
-    "Moderate Dry (20–30%)",
-    "Optimal Low (30–40%)",
-    "Optimal High (40–50%)",
-    "Wet (50–60%)",
-    "Very Wet (>60%)"
-]
+labels = {
+    "Very Dry (0–10%)": "#8B0000",
+    "Dry (10–20%)": "#FF4500",
+    "Moderate Dry (20–30%)": "#FFA500",
+    "Optimal Low (30–40%)": "#9ACD32",
+    "Optimal High (40–50%)": "#228B22",
+    "Wet (50–60%)": "#1E90FF",
+    "Very Wet (>60%)": "#00008B"
+}
 
 filtered_df["Soil_Moisture_Level"] = pd.cut(
     filtered_df[soil_col],
@@ -130,16 +132,24 @@ else:
 # ===============================
 # 4. Model Preparation
 # ===============================
-X = filtered_df[["temperature_C", "humidity_%", "rainfall_mm", "soil_pH"]].copy()
-X["crop_type_encoded"] = LabelEncoder().fit_transform(filtered_df["crop_type"])
-X["fertilizer_type_encoded"] = LabelEncoder().fit_transform(filtered_df["fertilizer_type"])
+model_features = ["temperature_C", "humidity_%", "rainfall_mm", "soil_pH"]
+X = filtered_df[model_features].copy()
+
+le_crop = LabelEncoder()
+le_fert = LabelEncoder()
+
+X["crop_type_encoded"] = le_crop.fit_transform(filtered_df["crop_type"])
+X["fertilizer_type_encoded"] = le_fert.fit_transform(filtered_df["fertilizer_type"])
+
 y = filtered_df[soil_col]
 
 if len(filtered_df) < 5:
     X_train = X_test = X
     y_train = y_test = y
 else:
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=test_size, random_state=42
+    )
 
 scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
@@ -153,13 +163,17 @@ dt_model = DecisionTreeRegressor(max_depth=tree_depth, random_state=42)
 dt_model.fit(X_train, y_train)
 dt_pred = dt_model.predict(X_test)
 
-nn_model = MLPRegressor(hidden_layer_sizes=(nn_layer_size, nn_layer_size), max_iter=1000, random_state=42)
+nn_model = MLPRegressor(
+    hidden_layer_sizes=(nn_layer_size, nn_layer_size),
+    max_iter=1000,
+    random_state=42
+)
 nn_model.fit(X_train_scaled, y_train)
 nn_pred = nn_model.predict(X_test_scaled)
 
 
 # ===============================
-# 8. Latest Prediction (UPDATED LOGIC)
+# 8. Latest Prediction
 # ===============================
 latest_features = X.tail(1)
 
@@ -188,4 +202,7 @@ else:
     bar_color = "darkblue"
 
 st.progress(int(avg))
-st.markdown(f"<p style='color:{bar_color}; font-size:18px;'>{condition}</p>", unsafe_allow_html=True)
+st.markdown(
+    f"<p style='color:{bar_color}; font-size:18px;'>{condition}</p>",
+    unsafe_allow_html=True
+)
