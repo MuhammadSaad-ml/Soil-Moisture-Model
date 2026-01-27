@@ -138,7 +138,7 @@ st.caption(f"Using soil moisture column: **{soil_col}**")
 # ===============================
 
 bins = [0, 10, 20, 30, 40, 50, 60, 100]
-color_discrete_map={
+labels={
     "Very Dry (0–10%)": "#8B0000",
     "Dry (10–20%)": "#FF4500",
     "Moderate Dry (20–30%)": "#FFA500",
@@ -395,6 +395,7 @@ st.markdown(
     f"<p style='color:{bar_color}; font-size:18px;'>{condition}</p>",
     unsafe_allow_html=True
 )
+
 
 
 
