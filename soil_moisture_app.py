@@ -219,7 +219,7 @@ if len(filtered_df) > 0:
         map_df,
         lat="latitude",
         lon="longitude",
-        color="Soil_Moisture_Level",  # ✅ Use classification
+        color="Soil_Moisture_Level",   # ✅ USE CLASSIFICATION
         zoom=4,
         hover_name="farm_id",
         hover_data={
@@ -231,7 +231,7 @@ if len(filtered_df) > 0:
             "rainfall_mm": True
         },
         title=f"Soil Moisture Categories in {region}",
-        color_discrete_map=labels  # ✅ Existing color map
+        color_discrete_map=labels      # ✅ YOUR EXISTING COLOR MAP
     )
 
     fig_map.update_layout(
@@ -244,6 +244,7 @@ if len(filtered_df) > 0:
 
 else:
     st.warning("⚠ No location data available for the selected filters.")
+
 
 
 
@@ -460,6 +461,7 @@ st.markdown(
     f"<p style='color:{bar_color}; font-size:18px;'>{condition}</p>",
     unsafe_allow_html=True
 )
+
 
 
 
