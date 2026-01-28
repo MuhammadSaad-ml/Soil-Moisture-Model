@@ -209,24 +209,18 @@ else:
 # ===============================
 # 🗺️ Spatial Drill-Down: Farm-Level Soil Moisture Map
 # ===============================
-# ===============================
-# 🗺️ Spatial Drill-Down: Farm-Level Soil Moisture Map
-# ===============================
 st.subheader("🗺️ Spatial View: Soil Moisture by Location")
 
 if len(filtered_df) > 0:
 
     map_df = filtered_df.copy()
 
-    # 🔹 Compute dynamic center
-    center_lat = map_df["latitude"].mean()
-    center_lon = map_df["longitude"].mean()
-
     fig_map = px.scatter_mapbox(
         map_df,
         lat="latitude",
         lon="longitude",
-        color="Soil_Moisture_Level",
+        color="Soil_Moisture_Level",  # ✅ Use classification
+        zoom=4,
         hover_name="farm_id",
         hover_data={
             "region": True,
@@ -237,15 +231,11 @@ if len(filtered_df) > 0:
             "rainfall_mm": True
         },
         title=f"Soil Moisture Categories in {region}",
-        color_discrete_map=labels
+        color_discrete_map=labels  # ✅ Existing color map
     )
 
     fig_map.update_layout(
         mapbox_style="open-street-map",
-        mapbox=dict(
-            center=dict(lat=center_lat, lon=center_lon),
-            zoom=5  # ✅ auto-feels regional
-        ),
         height=500,
         margin={"r": 0, "t": 40, "l": 0, "b": 0}
     )
@@ -254,7 +244,6 @@ if len(filtered_df) > 0:
 
 else:
     st.warning("⚠ No location data available for the selected filters.")
-
 
 
 
@@ -471,6 +460,7 @@ st.markdown(
     f"<p style='color:{bar_color}; font-size:18px;'>{condition}</p>",
     unsafe_allow_html=True
 )
+
 
 
 
