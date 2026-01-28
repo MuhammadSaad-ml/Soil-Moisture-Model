@@ -209,7 +209,7 @@ else:
 # ===============================
 # 🗺️ Spatial Drill-Down: Farm-Level Soil Moisture Map
 # ===============================
-===============================
+# ===============================
 # 🗺️ Spatial Drill-Down: Farm-Level Soil Moisture Map
 # ===============================
 st.subheader("🗺️ Spatial View: Soil Moisture by Location")
@@ -468,6 +468,7 @@ st.markdown(
     f"<p style='color:{bar_color}; font-size:18px;'>{condition}</p>",
     unsafe_allow_html=True
 )
+
 
 
 
