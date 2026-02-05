@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import numpy as np
+import numpy as np 
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
@@ -433,3 +433,4 @@ st.markdown(
     f"<p style='color:{bar_color}; font-size:18px;'>{condition}</p>",
     unsafe_allow_html=True
 )
+
