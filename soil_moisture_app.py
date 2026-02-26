@@ -385,6 +385,31 @@ colB2.metric("🤖 NN – MSE", f"{nn_mse:.2f}")
 colC2.metric("🤖 NN – RMSE", f"{nn_rmse:.2f}")
 colD2.metric("🤖 NN – Std Dev", f"{nn_std:.2f}")
 
+st.markdown("### 📘 What Do These Metrics Mean?")
+
+with st.expander("Click to understand the evaluation metrics"):
+    st.markdown("""
+    **MAE (Mean Absolute Error)**  
+    → The average absolute difference between predicted and actual soil moisture.  
+    → Lower MAE means predictions are closer to real values.
+
+    **MSE (Mean Squared Error)**  
+    → The average of squared errors.  
+    → Punishes large mistakes more heavily.  
+    → Lower is better.
+
+    **RMSE (Root Mean Squared Error)**  
+    → Square root of MSE.  
+    → Same unit as soil moisture (%).  
+    → Easier to interpret than MSE.
+
+    **Standard Deviation of Errors**  
+    → Measures how spread out the prediction errors are.  
+    → Lower means more consistent predictions.
+
+    📌 In all cases: **Lower values indicate better model performance.**
+    """)
+
 
 # ===============================
 # 8. Latest Predictions
@@ -433,4 +458,5 @@ st.markdown(
     f"<p style='color:{bar_color}; font-size:18px;'>{condition}</p>",
     unsafe_allow_html=True
 )
+
 
