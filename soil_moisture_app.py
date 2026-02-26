@@ -371,19 +371,57 @@ nn_mse = mean_squared_error(y_test, nn_pred)
 dt_std = np.std(abs(y_test - dt_pred))
 nn_std = np.std(abs(y_test - nn_pred))
 
-st.markdown("## 📐 Model Performance Metrics")
+# st.markdown("## 📐 Model Performance Metrics")
+
+# colA, colB, colC, colD = st.columns(4)
+# colA.metric("🌳 DT – MAE", f"{dt_mae:.2f}")
+# colB.metric("🌳 DT – MSE", f"{dt_mse:.2f}")
+# colC.metric("🌳 DT – RMSE", f"{dt_rmse:.2f}")
+# colD.metric("🌳 DT – Std Dev", f"{dt_std:.2f}")
+
+# colA2, colB2, colC2, colD2 = st.columns(4)
+# colA2.metric("🤖 NN – MAE", f"{nn_mae:.2f}")
+# colB2.metric("🤖 NN – MSE", f"{nn_mse:.2f}")
+# colC2.metric("🤖 NN – RMSE", f"{nn_rmse:.2f}")
+# colD2.metric("🤖 NN – Std Dev", f"{nn_std:.2f}")
+
+st.markdown("## 📐 Model Performance Metrics (Comparison)")
+
+# Calculate differences (NN - DT)
+mae_diff = nn_mae - dt_mae
+mse_diff = nn_mse - dt_mse
+rmse_diff = nn_rmse - dt_rmse
+std_diff = nn_std - dt_std
 
 colA, colB, colC, colD = st.columns(4)
-colA.metric("🌳 DT – MAE", f"{dt_mae:.2f}")
-colB.metric("🌳 DT – MSE", f"{dt_mse:.2f}")
-colC.metric("🌳 DT – RMSE", f"{dt_rmse:.2f}")
-colD.metric("🌳 DT – Std Dev", f"{dt_std:.2f}")
 
-colA2, colB2, colC2, colD2 = st.columns(4)
-colA2.metric("🤖 NN – MAE", f"{nn_mae:.2f}")
-colB2.metric("🤖 NN – MSE", f"{nn_mse:.2f}")
-colC2.metric("🤖 NN – RMSE", f"{nn_rmse:.2f}")
-colD2.metric("🤖 NN – Std Dev", f"{nn_std:.2f}")
+colA.metric(
+    "MAE",
+    f"DT: {dt_mae:.2f}",
+    delta=f"{mae_diff:.2f} (NN vs DT)",
+    delta_color="inverse"
+)
+
+colB.metric(
+    "MSE",
+    f"DT: {dt_mse:.2f}",
+    delta=f"{mse_diff:.2f} (NN vs DT)",
+    delta_color="inverse"
+)
+
+colC.metric(
+    "RMSE",
+    f"DT: {dt_rmse:.2f}",
+    delta=f"{rmse_diff:.2f} (NN vs DT)",
+    delta_color="inverse"
+)
+
+colD.metric(
+    "Std Dev",
+    f"DT: {dt_std:.2f}",
+    delta=f"{std_diff:.2f} (NN vs DT)",
+    delta_color="inverse"
+)
 
 st.markdown("### 📘 What Do These Metrics Mean?")
 
@@ -458,5 +496,6 @@ st.markdown(
     f"<p style='color:{bar_color}; font-size:18px;'>{condition}</p>",
     unsafe_allow_html=True
 )
+
 
 
