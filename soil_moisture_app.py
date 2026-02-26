@@ -371,19 +371,19 @@ nn_mse = mean_squared_error(y_test, nn_pred)
 dt_std = np.std(abs(y_test - dt_pred))
 nn_std = np.std(abs(y_test - nn_pred))
 
-# st.markdown("## 📐 Model Performance Metrics")
+st.markdown("## 📐 Model Performance Metrics")
 
-# colA, colB, colC, colD = st.columns(4)
-# colA.metric("🌳 DT – MAE", f"{dt_mae:.2f}")
-# colB.metric("🌳 DT – MSE", f"{dt_mse:.2f}")
-# colC.metric("🌳 DT – RMSE", f"{dt_rmse:.2f}")
-# colD.metric("🌳 DT – Std Dev", f"{dt_std:.2f}")
+colA, colB, colC, colD = st.columns(4)
+colA.metric("🌳 DT – MAE", f"{dt_mae:.2f}")
+colB.metric("🌳 DT – MSE", f"{dt_mse:.2f}")
+colC.metric("🌳 DT – RMSE", f"{dt_rmse:.2f}")
+colD.metric("🌳 DT – Std Dev", f"{dt_std:.2f}")
 
-# colA2, colB2, colC2, colD2 = st.columns(4)
-# colA2.metric("🤖 NN – MAE", f"{nn_mae:.2f}")
-# colB2.metric("🤖 NN – MSE", f"{nn_mse:.2f}")
-# colC2.metric("🤖 NN – RMSE", f"{nn_rmse:.2f}")
-# colD2.metric("🤖 NN – Std Dev", f"{nn_std:.2f}")
+colA2, colB2, colC2, colD2 = st.columns(4)
+colA2.metric("🤖 NN – MAE", f"{nn_mae:.2f}")
+colB2.metric("🤖 NN – MSE", f"{nn_mse:.2f}")
+colC2.metric("🤖 NN – RMSE", f"{nn_rmse:.2f}")
+colD2.metric("🤖 NN – Std Dev", f"{nn_std:.2f}")
 
 st.markdown("## 📐 Model Performance Metrics (Comparison)")
 
@@ -496,6 +496,7 @@ st.markdown(
     f"<p style='color:{bar_color}; font-size:18px;'>{condition}</p>",
     unsafe_allow_html=True
 )
+
 
 
 
